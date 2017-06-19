@@ -1,0 +1,5 @@
+## Interface: 70200
+## Title: Tank Threat Plates
+## Notes: Add color to nameplates while tanking to monitor aggro
+## Version: 1.0
+TankThreatPlates.lua
