@@ -4,32 +4,32 @@ local frame, events = CreateFrame("frame"), {}
 
 local color_default = {
   r = 1.0,
-  b = 0.0,
-  g = 0.0
+  g = 0.0,
+  b = 0.0
 }
 
 local color_tanking_low = {
-  r = 1.0,
-  b = 1.0,
-  g = 0.0
+  r = 0.0,
+  g = 0.0,
+  b = 0.0
 }
 
 local color_tanking_mid = {
   r = 0.0,
-  b = 0.0,
-  g = 0.0
+  g = 0.0,
+  b = 0.0
 }
 
 local color_tanking_high = {
   r = 0.0,
-  b = 0.0,
-  g = 1.0
+  g = 0.0,
+  b = 1.0
 }
 
 local color_offtanking = {
-  r = 0.5,
-  b = 1.0,
-  g = 0.5
+  r = 0.0,
+  g = 0.0,
+  b = 1.0
 }
 
 local function updatePlayerRole()
@@ -41,11 +41,12 @@ local function findTanks()
 end
 
 local function isOffTanking(unit)
-  return true
+  return false
 end
 
 local function isValidThreatSituation(frame)
   local reaction = UnitReaction("player", frame.unit)
+  print(color_tanking_low.r)
 
   if reaction
     and reaction < 4
@@ -58,13 +59,10 @@ local function isValidThreatSituation(frame)
 end
 
 local function resetThreat(frame)
+  print(unpack(color_default))
   if frame.threat then
       frame.threat = nil
-      frame.healthBar:SetStatusBarColor(
-        0.9,
-        0.6,
-        0.0
-      )
+      frame.healthBar:SetStatusBarColor(unpack(default_color))
   end
 end
 
@@ -138,4 +136,77 @@ end
 for key, _ in pairs(events) do
    -- Register all events for which handlers have been defined
   frame:RegisterEvent(key)
+end
+
+----------------------------- Menu -------------------------------------
+
+function showColorPicker(r, g, b, a, changedCallback)
+ ColorPickerFrame:SetColorRGB(r,g,b, 1.0);
+ ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = (a ~= nil), a;
+ ColorPickerFrame.previousValues = {r,g,b,a};
+ ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc =
+  colorSelectCallback, colorSelectCallback, colorSelectCallback;
+ ColorPickerFrame:Hide(); -- Need to run the OnShow handler.
+ ColorPickerFrame:Show();
+end
+
+TankThreatPlatesMenu = {}
+TankThreatPlatesMenu.panel = CreateFrame( "Frame", "TankThreatPlatesMenu", UIParent )
+TankThreatPlatesMenu.panel.name = "Tank Threat Plates"
+InterfaceOptions_AddCategory(TankThreatPlatesMenu.panel)
+
+local title = TankThreatPlatesMenu.panel:CreateFontString(
+                nil,
+                "ARTWORK",
+                "GameFontNormalLarge"
+              )
+
+title:SetPoint("TOPLEFT", 16, -16)
+title:SetText("Tank Threat Plates")
+
+-- local sometext = TankThreatPlatesMenu.panel:CreateFontString(
+--                    nil,
+--                    "ARTWORK",
+--                    "GameFontHighlightSmall"
+--                  )
+--
+-- sometext:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
+-- sometext:SetText("Default Color:")
+
+myCheckButton = CreateFrame(
+  "Button",
+  "myCheckButton_GlobalName",
+  TankThreatPlatesMenu.panel,
+  "ChatConfigCheckButtonTemplate"
+)
+
+myCheckButton:SetPoint("TOPLEFT", 20, -60)
+myCheckButton_GlobalNameText:SetText("Default Plate Color")
+myCheckButton.tooltip = "Click to select default color"
+
+myCheckButton.texture = myCheckButton:CreateTexture()
+myCheckButton.texture:SetAllPoints(myCheckButton)
+myCheckButton.texture:SetColorTexture(1.0, 0.0, 0.0, 0.5)
+
+
+myCheckButton:SetScript("OnClick", function()
+  showColorPicker(_, _, _, _, colorSelectCallback)
+end);
+
+function colorSelectCallback()
+  local r, g, b = ColorPickerFrame:GetColorRGB()
+
+  color_tanking_high.r = r
+  color_tanking_high.g = g
+  color_tanking_high.b = b
+  myCheckButton.texture = myCheckButton:CreateTexture()
+  myCheckButton.texture:SetAllPoints(myCheckButton)
+  myCheckButton.texture:SetColorTexture(r, g, b)
+end
+
+SLASH_TANKTHREATPLATES1 = "/ttp"
+SlashCmdList["TANKTHREATPLATES"] = function(msg, editBox)
+  -- Yes, this is a workaround to a known Blizz bug
+  InterfaceOptionsFrame_OpenToCategory(TankThreatPlatesMenu.panel.name)
+  InterfaceOptionsFrame_OpenToCategory(TankThreatPlatesMenu.panel.name)
 end
