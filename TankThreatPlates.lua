@@ -2,39 +2,18 @@ local playerRole, tanks = _, {}
 
 local frame, events = CreateFrame("frame"), {}
 
-local color_default = {
-  r = 1.0,
-  g = 0.0,
-  b = 0.0
-}
+local color_default = { 1.0, 1.0, 0.0 }
 
-local color_tanking_low = {
-  r = 0.0,
-  g = 0.0,
-  b = 0.0
-}
+local color_tanking_low = { 0.0, 0.0, 0.0 }
 
-local color_tanking_mid = {
-  r = 0.0,
-  g = 0.0,
-  b = 0.0
-}
+local color_tanking_mid = { 0.0, 0.0, 0.0 }
 
-local color_tanking_high = {
-  r = 0.0,
-  g = 0.0,
-  b = 1.0
-}
+local color_tanking_high  = { 0.3, 0.5, 1.0 }
 
-local color_offtanking = {
-  r = 0.0,
-  g = 0.0,
-  b = 1.0
-}
+local color_offtanking = { 0.0, 0.0, 1.0 }
 
 local function updatePlayerRole()
   playerRole = GetSpecializationRole(GetSpecialization())
-  print('Player Role Changed: ' .. playerRole)
 end
 
 local function findTanks()
@@ -46,7 +25,6 @@ end
 
 local function isValidThreatSituation(frame)
   local reaction = UnitReaction("player", frame.unit)
-  print(color_tanking_low.r)
 
   if reaction
     and reaction < 4
@@ -59,7 +37,6 @@ local function isValidThreatSituation(frame)
 end
 
 local function resetThreat(frame)
-  print(unpack(color_default))
   if frame.threat then
       frame.threat = nil
       frame.healthBar:SetStatusBarColor(unpack(default_color))
@@ -92,11 +69,7 @@ local function updateStatusBarColor(frame)
   if isValidThreatSituation(frame) then
     threat_color = determineThreatLevel(frame)
 
-    frame.healthBar:SetStatusBarColor(
-      threat_color.r,
-      threat_color.g,
-      threat_color.b
-    )
+    frame.healthBar:SetStatusBarColor(unpack(color_default))
   end
 end
 
@@ -196,9 +169,7 @@ end);
 function colorSelectCallback()
   local r, g, b = ColorPickerFrame:GetColorRGB()
 
-  color_tanking_high.r = r
-  color_tanking_high.g = g
-  color_tanking_high.b = b
+  color_default = { r, g, b }
   myCheckButton.texture = myCheckButton:CreateTexture()
   myCheckButton.texture:SetAllPoints(myCheckButton)
   myCheckButton.texture:SetColorTexture(r, g, b)
